@@ -51,6 +51,7 @@ _XSLOCOBOT_MODELS = (
     'locobot_px100',
     'locobot_wx200',
     'locobot_wx250s',
+    'locobotcmu_wx200', # add lab locobot into the list of choices
 )
 
 
