@@ -37,8 +37,10 @@ from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
     TextSubstitution,
+    PythonExpression
 )
 from launch_ros.substitutions import FindPackageShare
+from launch.conditions import IfCondition, UnlessCondition
 
 
 class DeclareInterbotixXSArmRobotDescriptionLaunchArgument(DeclareLaunchArgument):
@@ -394,7 +396,22 @@ def declare_interbotix_xslocobot_robot_description_launch_arguments(
                 'hardware, or hardware simulated in Gazebo.'
             ),
         ),
-        DeclareInterbotixXSLoCoBotRobotDescriptionLaunchArgument(),
+        DeclareInterbotixXSLoCoBotRobotDescriptionLaunchArgument(
+            condition=UnlessCondition(
+                PythonExpression(['"', LaunchConfiguration('robot_model'), '".split("_")[0] == "locobotcmu"'])
+        )), # use xarco for regular locobot
+        DeclareInterbotixXSLoCoBotRobotDescriptionLaunchArgument(
+            condition=IfCondition(
+                PythonExpression(['"', LaunchConfiguration('robot_model'), '".split("_")[0] == "locobotcmu"'])),
+            default_value = Command([
+                FindExecutable(name='xacro'), ' ',
+                PathJoinSubstitution([
+                    FindPackageShare('interbotix_xslocobot_descriptions'),
+                    'urdf',
+                    'cmu_locobot',
+                    'cmu_locobot_description.urdf'
+                ]),
+        ])) # use urdf for locobotcmu
     ]
 
 
